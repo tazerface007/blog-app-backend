@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Flask
+instance/
+.webassets-cache
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# Logs
+*.log
+
+# Database
+*.sqlite3
+*.db
+
+# Migrations
+migrations/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+
