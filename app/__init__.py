@@ -14,7 +14,7 @@ def create_app():
     app.config.from_object(Config)
     db.init_app(app)
     migrate.init_app(app, db)
-
+    from app.db.models.usermodel import UserModel
     with app.app_context():
         db.create_all()
     # Load configuration from environment variables
