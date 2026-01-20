@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, app, request, jsonify
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -22,4 +22,14 @@ def create_app():
     # Blueprint registration
     from app.routes import api_bp
     app.register_blueprint(api_bp)
+
+
+    # Add Error Handlers
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            "error": "Not Found",
+            "message": "The requested resource does not exist"
+        }), 404
     return app
