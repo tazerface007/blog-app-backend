@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify
 import os
 from dotenv import load_dotenv
+load_dotenv()
 from .db import db
 from config import Config
 from flask_migrate import Migrate
 
-load_dotenv()
+
 
 migrate = Migrate()
 
