@@ -1,0 +1,61 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+ENV/
+
+# PyCharm project files
+.idea/
+
+
+# Mac system files
+.DS_Store
+
+# Test reports and coverage data
+htmlcov/
+.coverage
+.tox/
+.nox/
+.coverage.*
+*.cover
+*.log
+
+
+# Python egg files
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+
+# Git
+.git/
+.gitignore
+
+# Environment variables file
+.env
+*.env
+
+# Docker-related
+.dockerignore
+Dockerfile
+
+
+# Other
+*.sqlite3
+*.db
+*.bak
+*.swp
+# Logs
+logs/*.log
+logs/
+*.pyc
+*.pot
