@@ -1,4 +1,4 @@
-FROM python:slim-bookwork
+FROM python:slim-bookworm
 LABEL authors="deepak"
 
 WORKDIR /app
