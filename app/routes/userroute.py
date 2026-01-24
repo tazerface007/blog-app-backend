@@ -35,5 +35,39 @@ def mock_user():
 def create_user():
     user_info = request.json
     # Placeholder for user creation logic
-    created_user = {"id": 1, "username": user_info.get("username"), "email": user_info.get("email")}
+    from app.db.models.usermodel import UserModel
+    if not user_info.get('username') or not user_info.get('email'):
+        return jsonify({"message": "Invalid user data"}), 400
+    
+    # sanitize and validate user_info here as needed
+    email = str(user_info['email']).strip().lower()
+    username = user_info['username'].strip()
+
+    # validate username is already taken
+    from app.db import db
+    session = db.session()
+    existing_user = session.query(UserModel).filter_by(username=username).first()
+    if existing_user:
+        return jsonify({"message": "Username already taken"}), 400
+
+    if email.count('@') != 1:
+        return jsonify({"message": "Invalid email format"}), 400
+
+    new_user = UserModel(username=user_info['username'], email=user_info['email'])
+    print(f'{repr(new_user)}')
+
+    from app.db import db
+    session = db.session()
+    session.add(new_user)
+    session.commit()
+    created_user = new_user.json()
     return jsonify(created_user), 201
+
+@user_bp.route('/getall', methods=['GET'])
+def get_all_users():
+    from app.db import db
+    session = db.session()
+    from app.db.models.usermodel import UserModel
+    users = session.query(UserModel).all()
+    users_list = [user.json() for user in users]
+    return jsonify(users_list)
