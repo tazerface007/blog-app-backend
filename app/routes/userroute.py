@@ -71,3 +71,26 @@ def get_all_users():
     users = session.query(UserModel).all()
     users_list = [user.json() for user in users]
     return jsonify(users_list)
+
+
+@user_bp.route('/login', methods=['POST'])
+def login_user():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    # Generate token
+    import jwt
+    from flask import make_response
+
+    token = jwt.encode({'username': username}, 'your_secret_key', algorithm='HS256')
+
+    resp = make_response(jsonify({'message': 'Login successful'}))
+    resp.set_cookie(
+        'auth_token',
+        token,
+        httponly=True,
+        samesite='Strict',
+        path='/'
+    )
+    return resp
