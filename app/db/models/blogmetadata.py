@@ -5,6 +5,7 @@ from datetime import datetime,timezone
 class BlogMetadata(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
     slug = db.Column(db.String(500), unique=True, nullable=False)
     github_path = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
