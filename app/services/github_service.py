@@ -38,7 +38,7 @@ def create_blog(filename, content_json, token, repo):
 
     try:
         if gh_response.status_code not in [201, 200]:
-            db.session.delete(new_metadata) 
+            # db.session.delete(new_metadata) 
             db.session.commit()
             return jsonify({"error": "GitHub Upload Failed", "details": gh_response.json()}, 500)
         

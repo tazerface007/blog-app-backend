@@ -5,6 +5,7 @@ load_dotenv()
 from .db import db
 from config import Config
 from flask_migrate import Migrate
+from flask_cors import CORS
 
 
 
@@ -12,6 +13,7 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
+    CORS(app, supports_credentials=True)
     app.config.from_object(Config)
     db.init_app(app)
     migrate.init_app(app, db)

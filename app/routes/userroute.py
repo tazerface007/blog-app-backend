@@ -1,4 +1,6 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, json, request, jsonify
+import jwt
+
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
 
@@ -73,18 +75,64 @@ def get_all_users():
     return jsonify(users_list)
 
 
+@user_bp.route('/register', methods=['POST'])
+def register_user():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    secret_key = data.get('secret_key')
+
+    from app.db.models.usermodel import UserModel
+    from app.db import db
+    from werkzeug.security import generate_password_hash
+
+    # Check if user already exists
+    user_exists = UserModel.query.filter_by(username=username).first()
+    if user_exists:
+        return jsonify({"message": "Username already taken"}), 400
+
+    # Hash the password securely
+    hashed_password = generate_password_hash(password)
+
+    new_user = UserModel(username=username, password=hashed_password, secret_key=secret_key)
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify(new_user.json()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Error creating user"}), 500
+
+
 @user_bp.route('/login', methods=['POST'])
 def login_user():
     data = request.json
     username = data.get('username')
     password = data.get('password')
 
-    # Generate token
+    from app.db.models.usermodel import UserModel
+    from app.db import db
+    from werkzeug.security import check_password_hash
     import jwt
-    from flask import make_response
+    from flask import make_response, jsonify
 
-    token = jwt.encode({'username': username}, 'your_secret_key', algorithm='HS256')
+    # Find user by username
+    user = db.session.query(UserModel).filter_by(username=username).first()
+    if not user:
+        return jsonify({"message": "Invalid username or password"}), 401
 
+    # Verify password
+    if not check_password_hash(user.password, password):
+        return jsonify({"message": "Invalid username or password"}), 401
+
+    # Generate JWT token
+    token = jwt.encode(
+        {'username': username}, 
+        'your_secret_key', 
+        algorithm='HS256'
+    )
+
+    # Return response with token in cookie
     resp = make_response(jsonify({'message': 'Login successful'}))
     resp.set_cookie(
         'auth_token',
