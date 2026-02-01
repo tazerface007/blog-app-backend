@@ -70,8 +70,8 @@ def get_all_users():
     from app.db import db
     session = db.session()
     from app.db.models.usermodel import UserModel
-    users = session.query(UserModel).all()
-    users_list = [user.json() for user in users]
+    users = session.query(UserModel.username).all()
+    users_list = [user[0] for user in users]
     return jsonify(users_list)
 
 
