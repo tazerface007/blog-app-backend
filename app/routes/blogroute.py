@@ -118,3 +118,10 @@ def update_blog(id):
     
     except Exception as e:
         return jsonify({"error": f'{str(e)}'}), 500
+
+@blog_bp.route('/getall', methods=['GET'])
+def get_blogs():
+    API_ROUTE = "https://api.github.com/repos/tazerface007/portfolio/contents/data/blogs"
+    response = requests.get(API_ROUTE)
+    data = response.json()
+    return jsonify(data)
