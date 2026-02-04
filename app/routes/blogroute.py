@@ -122,6 +122,9 @@ def update_blog(id):
 @blog_bp.route('/getall', methods=['GET'])
 def get_blogs():
     API_ROUTE = "https://api.github.com/repos/tazerface007/portfolio/contents/data/blogs"
-    response = requests.get(API_ROUTE)
+    response = requests.get(API_ROUTE, {
+        "Accept": "application/vnd.github.v3+json",
+        "Authorization": f'token {os.getenv("GITHUB_TOKEN")}'
+    })
     data = response.json()
     return jsonify(data)
