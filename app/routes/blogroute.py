@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 from flask import Blueprint, request, jsonify
 import requests
@@ -122,9 +123,39 @@ def update_blog(id):
 @blog_bp.route('/getall', methods=['GET'])
 def get_blogs():
     API_ROUTE = "https://api.github.com/repos/tazerface007/portfolio/contents/data/blogs"
-    response = requests.get(API_ROUTE, {
+    headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f'token {os.getenv("GITHUB_TOKEN")}'
-    })
+        "Authorization": f'Bearer {os.getenv("GITHUB_TOKEN")}'
+    }
+    response = requests.get(API_ROUTE, headers=headers)
     data = response.json()
     return jsonify(data)
+
+@blog_bp.route('/get/<string:slug>', methods=['GET'])
+def get_blog(slug):
+    API_ROUTE = f"https://api.github.com/repos/tazerface007/portfolio/contents/data/blogs/{slug}.json?ref=main"
+
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "Authorization": f"Bearer {os.getenv('GITHUB_TOKEN')}"
+    }
+
+    response = requests.get(API_ROUTE, headers=headers)
+
+    if response.status_code != 200:
+        return jsonify({
+            "error": "Failed to fetch blog",
+            "status": response.status_code,
+            "details": response.json()
+        }), response.status_code
+
+    data = response.json()
+
+    decoded = base64.b64decode(data["content"]).decode("utf-8")
+    parsed = json.loads(decoded)
+
+    return jsonify({
+        "slug": slug,
+        "content": parsed
+    })
+
