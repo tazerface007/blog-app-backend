@@ -8,26 +8,31 @@ blog_bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 blog_admin_bp = Blueprint('admin_blog', __name__, url_prefix='/admin/blog')
 
-GITHUB_API_URL = "https://api.github.com/repos/{repo}/contents/blogs/{slug}.json"
+GITHUB_API_URL_BLOG = "https://api.github.com/repos/tazerface007/portfolio/contents/data/blogs/{slug}.json"
 
 @blog_bp.route('/', methods=['GET'])
 def blog_home():
     return jsonify({"message": "Welcome to the Blog Route!"})
 
 
-@blog_admin_bp.route('/create', methods=['POST'])
+@blog_admin_bp.route('/create', methods=['POST', 'OPTIONS'])
 def create_blog():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.json
     title = data.get('title')
-    slug = data.get('slug')
+    description = data.get('description')
     content_blocks = data.get('content')
+    from app.utils.slug_generator import generate_slug
+    slug = generate_slug(title)
 
     # 1. Update the SQLite Metadata
     from app.db.models.blogmetadata import BlogMetadata
     new_metadata = BlogMetadata(
-        title,
-        slug,
-        github_path=f'blogs/{slug}.json',
+        title=title,
+        description=description,
+        slug=slug,
+        github_path=f'/data/blogs/{slug}.json',
         is_published=True
     )
     from app.db import db
@@ -36,10 +41,8 @@ def create_blog():
         db.session.commit()
 
 
-        #
-        token = os.getenv("GITHUB_TOKEN")
         repo = os.getenv("GITHUB_REPO")
-        url = GITHUB_API_URL.format(repo=repo, slug=slug)
+        url = GITHUB_API_URL_BLOG.format(repo=repo, slug=slug)
 
         # GitHub requires Base64 encoded data
         import json
@@ -53,7 +56,7 @@ def create_blog():
         }
 
         headers = {
-            "Authorization": f'token {token}',
+            "Authorization": f'Bearer {os.getenv('GITHUB_TOKEN')}',
             "Accept": "application/vnd.github.v3+json"
         }
 
@@ -64,8 +67,18 @@ def create_blog():
             db.session.commit()
             return jsonify({"error": "GitHub Upload Failed", "details": gh_response.json()}, 500)
         
+        return jsonify({
+            "status": "success",
+            "message": f"Blog '{title}' created and synced to GitHub",
+            "slug": slug
+        }), 201
+    
+
     except Exception as e:
         db.session.rollback()
+        print("!!! PYTHON ERROR !!!:", str(e)) # LOOK AT YOUR TERMINAL FOR THIS
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": f'{str(e)}'}), 500
     
 
@@ -122,14 +135,23 @@ def update_blog(id):
 
 @blog_bp.route('/getall', methods=['GET'])
 def get_blogs():
-    API_ROUTE = "https://api.github.com/repos/tazerface007/portfolio/contents/data/blogs"
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-        "Authorization": f'Bearer {os.getenv("GITHUB_TOKEN")}'
-    }
-    response = requests.get(API_ROUTE, headers=headers)
-    data = response.json()
-    return jsonify(data)
+    from app.db import db
+    from app.db.models.blogmetadata import BlogMetadata
+    try:
+        blogs = BlogMetadata.query.all()
+        output = []
+        for blog in blogs:
+            output.append({
+                "id": blog.id,
+                "title": blog.title,
+                "description":blog.description,
+                "slug": blog.slug
+            })
+        print(output)
+        return jsonify(output)
+    except Exception as e:
+        print('Error', e)
+        return jsonify({"error": "error occured"}), 500
 
 @blog_bp.route('/get/<string:slug>', methods=['GET'])
 def get_blog(slug):
