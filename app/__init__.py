@@ -25,8 +25,12 @@ def create_app():
     scheduler.init_app(app)
     scheduler.start()
     migrate.init_app(app, db)
+    # Import all the Database models to make the app content create initial tables if not exists.
     from app.db.models.usermodel import UserModel
     from app.db.models.blogmetadata import BlogMetadata
+    from app.db.models.category import Category
+    from app.db.models.tag import Tag
+    from app.db.models.subscriber import Subscriber
     with app.app_context():
         db.create_all()
     # Load configuration from environment variables
