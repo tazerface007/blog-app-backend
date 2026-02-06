@@ -7,6 +7,10 @@ from datetime import datetime
 # Change 'hours=1' to 'seconds=5' for testing
 @scheduler.task('interval', id='backup_jobs', seconds=5)
 def backup_db_to_json():
+    """
+    This method will backup the database blogmetadata table. If the json file is not available in the directory, it will create one.
+    If json file is already available, it will first fetch it, get the sha value and then update it on the github repository.
+    """
     with scheduler.app.app_context():
         # Querying all data might be slow if the table is large
         data = BlogMetadata.query.all()
