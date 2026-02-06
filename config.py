@@ -1,6 +1,7 @@
 import os
 
 class Config:
+    SCHEDULER_API_ENABLED = True
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///' + os.path.join(BASE_DIR,'instance', 'app.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
