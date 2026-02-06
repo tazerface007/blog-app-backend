@@ -18,6 +18,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     from app.db.models.usermodel import UserModel
+    from app.db.models.blogmetadata import BlogMetadata
     with app.app_context():
         db.create_all()
     # Load configuration from environment variables
