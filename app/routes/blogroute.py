@@ -147,7 +147,6 @@ def get_blogs():
                 "description":blog.description,
                 "slug": blog.slug
             })
-        print(output)
         return jsonify(output)
     except Exception as e:
         print('Error', e)
