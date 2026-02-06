@@ -11,7 +11,7 @@ env/
 ENV/
 
 # Flask
-instance/
+instance/*.db
 .webassets-cache
 
 # Environment variables
