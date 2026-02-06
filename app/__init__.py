@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from .db import db
+from app.utils.task_scheduler import scheduler
 from config import Config
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -16,6 +17,8 @@ def create_app():
     CORS(app, supports_credentials=True)
     app.config.from_object(Config)
     db.init_app(app)
+    scheduler.init_app(app)
+    scheduler.start()
     migrate.init_app(app, db)
     from app.db.models.usermodel import UserModel
     from app.db.models.blogmetadata import BlogMetadata
